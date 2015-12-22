@@ -1,0 +1,18 @@
+{
+    "dependencies": {
+        "scarab-django": "jesseditson/scarab-django",
+        "scarab": "jesseditson/scarab"
+    },
+    "scarab": {
+        "parent": "jesseditson/scarab-django"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "name": "socodri",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "author": "",
+    "license": "ISC"
+}
