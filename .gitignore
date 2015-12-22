@@ -1,0 +1,9 @@
+venv/
+*.pyc
+.Python
+.DS_Store
+socodri.egg-info/
+db.sqlite3
+local_config.py
+bundle.js
+node_modules/
