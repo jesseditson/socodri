@@ -1,0 +1,5 @@
+Django==1.8.6
+django-autoslug==1.9.3
+django-extensions==1.5.9
+restless==2.0.1
+ipython==4.0.0
