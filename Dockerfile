@@ -18,4 +18,12 @@ RUN npm install
 # set up django app
 ADD requirements.txt /usr/src/app
 RUN pip install -r requirements.txt
+
+# copy local files
 ADD . .
+
+# bundle the js
+RUN npm run bundle
+
+# run our migrations
+RUN python manage.py migrate
