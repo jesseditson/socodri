@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <link rel="icon" type="img/ico" href="{% static 'media/favicon.png' %}">
     <script src="{% static 'dist/js/bundle.js' %}"></script>
-    <title>Socialcode DR Insights</title>
+    <title>DR Insights</title>
   </head>
   <body>
     <div class="navbar navbar-default navbar-fixed-top" id="global-header">
@@ -28,12 +28,12 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <span id="username">brennan</span>
+                            <span id="username">{{user.email}}</span>
                             <span id="team-name">SocialCode<span>
                             <i class="caret"></i>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a href="/accounts/#logout">Log out</a></li>
+                            <li><a href="{{logout_url}}">Log out</a></li>
                         </ul>
                     </li>
                 </ul>
