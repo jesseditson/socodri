@@ -1,11 +1,19 @@
-var request = require('superagent')
+var ready = require('detect-dom-ready')
+var Route = require('route-parser')
+require('./handlebars-helpers')
 
-request
-  .get('/ping')
-  .end(function(err, response) {
-    if (err) {
-      console.error(`error contacting server: ${err.message}`)
-    } else {
-      console.log(`pinged server, response: ${response.text}`)
+var modules = [
+    require('./funnel'),
+]
+var location = window.location.pathname
+
+function loadApp(){
+    for (var i in modules) {
+        var m = modules[i]
+        var r = new Route(m.path)
+        var params = r.match(location)
+        if (params) m.run(params)
     }
-  })
+}
+
+ready(loadApp)
