@@ -1,7 +1,7 @@
 var toolbar = require('../templates/toolbar.hbs')
 var modelView = require('../templates/model-view.hbs')
 var funnelSummary = require('../templates/funnel-summary.hbs')
-var stageCard = require('../templates/stage.hbs')
+var card = require('../templates/card.hbs')
 var request = require('superagent-bluebird-promise')
 var Promise = require("bluebird");
 
@@ -15,7 +15,8 @@ module.exports.run = function(params) {
     contentEl.innerHTML = modelView()
 
     var funnel
-    request.get('/api/funnel/' + params.funnel + '/')
+
+    request.get('/api/funnel/' + funnel_id + '/')
       .then(function(response){
           funnel = response.body
           toolbarEl.innerHTML = toolbar({viewName: 'funnel', funnel: funnel})
@@ -33,12 +34,12 @@ module.exports.run = function(params) {
 
             var i, stage
             for(i = 0; i < stages.length; i++){
-                stage = stages[i]
+                  stage = stages[i]
                 //stage.insights = insights.stages[stage.number]
                 stage.insights = {}
             }
             var cardsEl = document.querySelector('#card-list')
-            cardsEl.innerHTML += stageCard({funnel: funnel, stages: stages, insights: insights})
+            cardsEl.innerHTML += card({funnel: funnel, stages: stages, insights: insights})
         })
         .catch(function(err){
             console.log(err)
