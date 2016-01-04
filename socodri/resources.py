@@ -6,7 +6,39 @@ from django.views.decorators.csrf import csrf_exempt
 from socodri import authorization, models, preparers
 
 
-class FunnelResource(dj.DjangoResource):
+class InsightsMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(InsightsMixin, self).__init__(*args, **kwargs)
+
+        self.http_methods.update({
+            'insights': {
+                'GET': 'insights',
+            }
+        })
+
+    @classmethod
+    def urls(cls, name_prefix=None):
+        "Add insights edge"
+        urlpatterns = super(InsightsMixin, cls).urls(name_prefix=name_prefix)
+        return urlpatterns + patterns('',
+            url(r'^(?P<pk>\d+)/insights/$', cls.as_view('insights'), name=cls.build_url_name('insights', name_prefix)),
+            url(r'^(?P<slug>[\w-]+)/insights/$', cls.as_view('insights'), name=cls.build_url_name('insights', name_prefix))
+        )
+
+    @skip_prepare
+    def insights(self, pk=None, slug=None):
+        return {
+            'data': {'spend': 0.00, 'conversions': 0, 'conversion_revenue': 0.00}
+        }
+
+
+class AuthorizationMixin(object):
+    def is_authenticated(self):
+        return authorization.is_request_authorized(self.request)
+
+
+class FunnelResource(InsightsMixin, AuthorizationMixin, dj.DjangoResource):
+    name_prefix = 'funnel'
     preparer = preparers.LaxFieldsPreparer(fields={
         'id': 'id',
         'slug': 'slug',
@@ -16,26 +48,13 @@ class FunnelResource(dj.DjangoResource):
         'action_count': 'action_count',
     })
 
-    def __init__(self, *args, **kwargs):
-        super(FunnelResource, self).__init__(*args, **kwargs)
-
-        self.http_methods.update({
-            'insights': {
-                'GET': 'insights',
-            }
-        })
-
-    def is_authenticated(self):
-        return authorization.is_request_authorized(self.request)
-
     @classmethod
     def urls(cls, name_prefix=None):
-        "Add insights edge and enable slug detail view"
+        "Add slug detail view"
+        name_prefix = name_prefix or cls.name_prefix
         urlpatterns = super(FunnelResource, cls).urls(name_prefix=name_prefix)
         return urlpatterns + patterns('',
-            url(r'^(?P<slug>[\w-]+)/$', cls.as_detail(), name='api_funnel_detail'),
-            url(r'^(?P<pk>\d+)/insights/$', cls.as_view('insights'), name='api_funnel_insights'),
-            url(r'^(?P<slug>[\w-]+)/insights/$', cls.as_view('insights'), name='api_funnel_insights')
+            url(r'^(?P<slug>[\w-]+)/$', cls.as_detail(), name=cls.build_url_name('insights', name_prefix)),
         )
 
     def list(self):
@@ -71,7 +90,7 @@ class FunnelResource(dj.DjangoResource):
         }
 
 
-class ActionResource(dj.DjangoResource):
+class ActionResource(AuthorizationMixin, dj.DjangoResource):
     preparer = preparers.LaxFieldsPreparer(fields={
         'id': 'id',
         'pixel_id': 'pixel_id',
@@ -79,9 +98,6 @@ class ActionResource(dj.DjangoResource):
         'name': 'name',
         'tag': 'tag'
     })
-
-    def is_authenticated(self):
-        return authorization.is_request_authorized(self.request)
 
     def list(self):
         stage = self.request.GET.get('stage')
@@ -92,16 +108,13 @@ class ActionResource(dj.DjangoResource):
         return models.Action.objects.get(id=pk)
 
 
-class StageResource(dj.DjangoResource):
+class StageResource(AuthorizationMixin, dj.DjangoResource):
     preparer = preparers.LaxFieldsPreparer(fields={
         'id': 'id',
         'name': 'name',
         'number': 'number',
         'funnel_id': 'funnel_id',
     })
-
-    def is_authenticated(self):
-        return authorization.is_request_authorized(self.request)
 
     def list(self):
         funnel = self.request.GET.get('funnel')
