@@ -1,4 +1,3 @@
-<h1 class="card-heading">Stages</h1>
 {{#each stages}}
   <div class="panel sc-panel">
       <div class="sc-card-header">
@@ -6,7 +5,7 @@
               <div class="col-md-12">
                   <h2 class="card-heading"><a href="/funnel/{{funnel.slug}}/stage/{{id}}">{{name}}</a></h2>
                   <div class="progress">
-                      <div class="progress-bar" role="progressbar" aria-valuenow="{{percentOf insights.conversions insights.conversions}}" aria-valuemin="0" aria-valuemax="100" style="width:{{percentOf insights.conversions ../insights.conversions}}%">
+                      <div class="progress-bar" role="progressbar" aria-valuenow="{{percentOf insights.conversions ../insights.conversions}}" aria-valuemin="0" aria-valuemax="100" style="width:{{percentOf insights.conversions ../insights.conversions}}%">
                       </div>
                   </div>
               </div>
