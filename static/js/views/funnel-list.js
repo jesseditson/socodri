@@ -1,6 +1,8 @@
-var toolbar = require('../templates/toolbar.hbs')
-var funnelCard = require('../templates/funnel-list.hbs')
+var toolbar = require('../../templates/toolbar.hbs')
+var modelView = require('../../templates/model-view.hbs')
+var template = require('../../templates/funnel-list.hbs')
 var request = require('superagent-bluebird-promise')
+var Promise = require("bluebird");
 
 module.exports.path = '/'
 module.exports.run = function(params) {
@@ -11,12 +13,31 @@ module.exports.run = function(params) {
     var contentEl = document.querySelector('#content')
     contentEl.innerHTML = modelView()
 
+    var cardsEl = document.querySelector('#card-list')
+
+    var funnels
+
     request.get('/api/funnel/')
       .then(function(response){
-            var funnels = response.body.objects
-            console.log(funnels)
-            var cardsEl = document.querySelector('#card-list')
-            cardsEl.innerHTML += funnelCard({funnels: funnels})
+            funnels = response.body.objects
+            cardsEl.innerHTML = template({funnels: funnels})
+
+            var promises = []
+            var i = 0
+            for(i; i < funnels.length; i++){
+              promises.push(request.get('/api/funnel/' + funnels[i].id + '/insights/'))
+            }
+            return Promise.all(promises)
+      })
+      .map(function(response){
+          return response.body.data[0]
+      })
+      .then(function(insights){
+          var i = 0
+          for(i; i < funnels.length; i++){
+            funnels[i].insights = insights[i]
+          }
+          cardsEl.innerHTML = template({funnels: funnels})
       })
       .catch(function(err){
           console.log(err)

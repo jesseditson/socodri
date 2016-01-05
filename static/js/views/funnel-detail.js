@@ -1,7 +1,7 @@
-var toolbar = require('../templates/toolbar.hbs')
-var modelView = require('../templates/model-view.hbs')
-var funnelSummary = require('../templates/funnel-summary.hbs')
-var card = require('../templates/card.hbs')
+var toolbar = require('../../templates/toolbar.hbs')
+var modelView = require('../../templates/model-view.hbs')
+var funnelSummary = require('../../templates/funnel-summary.hbs')
+var card = require('../../templates/card.hbs')
 var request = require('superagent-bluebird-promise')
 var Promise = require("bluebird");
 
@@ -16,7 +16,7 @@ module.exports.run = function(params) {
 
     var funnel
 
-    request.get('/api/funnel/' + funnel_id + '/')
+    request.get('/api/funnel/' + params.funnel + '/')
       .then(function(response){
           funnel = response.body
           toolbarEl.innerHTML = toolbar({viewName: 'funnel', funnel: funnel})
