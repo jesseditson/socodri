@@ -97,6 +97,7 @@ STATIC_URL = '/socodri/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
+WHITELISTED_FUNNELS = {}
 SOCIALCODE_LOGIN_PATH = "/"
 SOCIALCODE_LOGOUT_PATH = "/logout"
 SOCIALCODE_BASE_URL = 'https://app.socialcode.com'

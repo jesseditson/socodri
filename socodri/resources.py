@@ -1,9 +1,9 @@
 from restless import dj
 from restless.resources import skip_prepare
 from django.db.models import Count
+from django.conf import settings
 from django.conf.urls import patterns, url
-from django.views.decorators.csrf import csrf_exempt
-from socodri import authorization, models, preparers
+from socodri import authorization, models, preparers, insights, utils
 
 
 class InsightsMixin(object):
@@ -32,13 +32,24 @@ class InsightsMixin(object):
         }
 
 
-class AuthorizationMixin(object):
+class GetCurrentUserMixin(object):
     def is_authenticated(self):
+        self.request.user = utils.get_current_user(self.request.COOKIES)
+        return self.request.user is not None
+
+
+class AuthorizationMixin(object):
+    def is_authorized(self):
         return authorization.is_request_authorized(self.request)
 
+    def get_authorized_queryset(self):
+        assert self.model
+        return self.model.objects.all().filter(pk__in=settings.WHITELISTED_FUNNELS.get(self.request.user.get('id'), []))
 
-class FunnelResource(InsightsMixin, AuthorizationMixin, dj.DjangoResource):
+
+class FunnelResource(GetCurrentUserMixin, AuthorizationMixin, InsightsMixin, dj.DjangoResource):
     name_prefix = 'funnel'
+    model = models.Funnel
     preparer = preparers.LaxFieldsPreparer(fields={
         'id': 'id',
         'slug': 'slug',
@@ -58,39 +69,22 @@ class FunnelResource(InsightsMixin, AuthorizationMixin, dj.DjangoResource):
         )
 
     def list(self):
-        return models.Funnel.objects.all().annotate(stage_count=Count('stage'))
+        return self.get_authorized_queryset().annotate(stage_count=Count('stage'))
 
     def _get_lookup_filter(self, pk=None, slug=None):
         return pk and {'pk': pk} or {'slug': slug}
 
     def detail(self, pk=None, slug=None):
-        #funnel.insights['groups'] = sorted(campaign_insights, key=lambda x: x.get('cost_per_conversion'), reverse=False)
-        return models.Funnel.objects.filter(**self._get_lookup_filter(pk, slug)).annotate(stage_count=Count('stage')).first()
+        return self.get_authorized_queryset().filter(**self._get_lookup_filter(pk, slug)).annotate(stage_count=Count('stage')).first()
 
     @skip_prepare
     def insights(self, pk=None, slug=None):
         funnel = models.Funnel.objects.filter(**self._get_lookup_filter(pk, slug)).first()
-        """
-        fn_map = {
-            'audience': insights.get_audience_insights,
-            'creative': insights.get_creative_insights,
-            'campaign': insights.get_campaign_insights
-        }
-        _type = self.request.GET.get('type')
-        data = _type in fn_map and fn_map[_type](funnel.adaccount.id, *map(lambda x: x.id, funnel.campaigns.all())) or []
-        return {
-            'data': [d for d in data]
-        }
-        """
-        #data = insights.get_funnel_insights(funnel)
-        data = {'spend': 0.00, 'conversions': 0, 'conversion_revenue': 0.00}
-
-        return {
-            'data': data
-        }
+        daily = self.request.GET.get('daily', False)
+        return {'data': insights.get_funnel_insights(funnel, daily=daily)}
 
 
-class ActionResource(AuthorizationMixin, dj.DjangoResource):
+class ActionResource(dj.DjangoResource):
     preparer = preparers.LaxFieldsPreparer(fields={
         'id': 'id',
         'pixel_id': 'pixel_id',
@@ -108,7 +102,7 @@ class ActionResource(AuthorizationMixin, dj.DjangoResource):
         return models.Action.objects.get(id=pk)
 
 
-class StageResource(AuthorizationMixin, dj.DjangoResource):
+class StageResource(dj.DjangoResource):
     preparer = preparers.LaxFieldsPreparer(fields={
         'id': 'id',
         'name': 'name',
