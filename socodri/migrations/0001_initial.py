@@ -36,6 +36,8 @@ class Migration(migrations.Migration):
                 ('view_multiplier', models.FloatField(default=1.0)),
                 ('click_window', models.CharField(max_length=32, null=True)),
                 ('click_multiplier', models.FloatField(default=1.0)),
+                ('action_total_type', models.CharField(default=b'total_actions', max_length=32)),
+                ('revenue_source', models.CharField(default=b'Facebook', max_length=32)),
                 ('adaccount', models.ForeignKey(related_name='funnel', to='socodri.AdsObject')),
                 ('campaigns', models.ManyToManyField(related_name='funnels', to='socodri.AdsObject')),
             ],

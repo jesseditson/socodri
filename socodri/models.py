@@ -2,6 +2,10 @@ from copy import copy
 from django.db import models
 from autoslug import AutoSlugField
 
+REVENUE_SOURCES = (
+    'Facebook', 'DFA'
+)
+
 
 class AdsObject(models.Model):
     id = models.BigIntegerField(primary_key=True)
@@ -20,6 +24,8 @@ class Funnel(models.Model):
     view_multiplier = models.FloatField(default=1.0)
     click_window = models.CharField(max_length=32, null=True)
     click_multiplier = models.FloatField(default=1.0)
+    action_total_type = models.CharField(max_length=32, default="total_actions")
+    revenue_source = models.CharField(max_length=32, default="Facebook")
 
     def __unicode__(self):
         return self.name
