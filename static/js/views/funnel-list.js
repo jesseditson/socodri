@@ -13,14 +13,12 @@ module.exports.run = function(params) {
     var contentEl = document.querySelector('#content')
     contentEl.innerHTML = modelView()
 
-    var cardsEl = document.querySelector('#card-list')
-
     var funnels
 
     request.get('/api/funnel/')
       .then(function(response){
             funnels = response.body.objects
-            cardsEl.innerHTML = template({funnels: funnels})
+            contentEl.innerHTML = template({funnels: funnels})
 
             var promises = []
             var i = 0
@@ -37,7 +35,7 @@ module.exports.run = function(params) {
           for(i; i < funnels.length; i++){
             funnels[i].insights = insights[i]
           }
-          cardsEl.innerHTML = template({funnels: funnels})
+          contentEl.innerHTML = template({funnels: funnels})
       })
       .catch(function(err){
           console.log(err)
