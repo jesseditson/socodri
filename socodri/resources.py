@@ -102,7 +102,7 @@ class ActionResource(dj.DjangoResource):
         return models.Action.objects.get(id=pk)
 
 
-class StageResource(dj.DjangoResource):
+class StageResource(InsightsMixin, dj.DjangoResource):
     preparer = preparers.LaxFieldsPreparer(fields={
         'id': 'id',
         'name': 'name',
