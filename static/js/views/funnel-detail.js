@@ -27,7 +27,7 @@ module.exports.run = function(params) {
         })
         .spread(function(stage_response, insights_response){
             var stages = stage_response.body.objects
-            var insights = insights_response.body.data
+            var insights = insights_response.body.data[0]
 
             var summaryEl = document.querySelector('#funnel-summary')
             summaryEl.innerHTML = funnelSummary({funnel: funnel, insights: insights})
