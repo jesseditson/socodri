@@ -4,25 +4,21 @@
           <div class="sc-card-details">
               <div class="col-md-12">
                   <h2 class="card-heading"><a href="/funnel/{{funnel.slug}}/stage/{{id}}">{{name}}</a></h2>
-                  <div class="progress">
-                      <div class="progress-bar" role="progressbar" aria-valuenow="{{percentOf insights.conversions ../insights.conversions}}" aria-valuemin="0" aria-valuemax="100" style="width:{{percentOf insights.conversions ../insights.conversions}}%">
-                      </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="sc-card-label">
+                      Total {{name}}s
+                  </div>
+                  <div class="sc-card-value">
+                      {{formatNumber  insights.conversions }} <small>({{percentOf insights.conversions ../funnel.insights.conversions }}%) </small>
                   </div>
               </div>
               <div class="col-md-3">
                   <div class="sc-card-label">
-                      Total Conversions
+                      Cost Per {{name}}
                   </div>
                   <div class="sc-card-value">
-                      {{formatNumber  insights.conversions }} <small>({{percentOf insights.conversions ../insights.conversions }}%) </small>
-                  </div>
-              </div>
-              <div class="col-md-3">
-                  <div class="sc-card-label">
-                      Cost Per Conversion
-                  </div>
-                  <div class="sc-card-value">
-                      {{ costPer insights.conversions ../insights.spend }}
+                      {{ costPer insights.conversions insights.spend }}
                   </div>
               </div>
               <div class="clearfix"></div>

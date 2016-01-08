@@ -81,7 +81,8 @@ class FunnelResource(GetCurrentUserMixin, AuthorizationMixin, InsightsMixin, dj.
     def insights(self, pk=None, slug=None):
         funnel = models.Funnel.objects.filter(**self._get_lookup_filter(pk, slug)).first()
         daily = self.request.GET.get('daily', False)
-        return {'data': insights.get_funnel_insights(funnel)}
+        stages = self.request.GET.get('stages', False)
+        return {'data': insights.get_stage_insights(funnel) if stages else insights.get_funnel_insights(funnel)}
 
 
 class ActionResource(dj.DjangoResource):

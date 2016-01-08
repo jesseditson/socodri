@@ -12,7 +12,7 @@
                 Spend
             </div>
             <div class="sc-list-item-value">
-                {{formatMoney insights.spend}}
+                {{formatMoney funnel.insights.spend}}
             </div>
         </li>
         <li class="list-group-item">
@@ -20,7 +20,7 @@
                 Conversions
             </div>
             <div class="sc-list-item-value">
-                {{formatNumber insights.conversions}}
+                {{formatNumber funnel.insights.conversions}}
             </div>
         </li>
         <li class="list-group-item">
@@ -28,7 +28,7 @@
                 Revenue
             </div>
             <div class="sc-list-item-value">
-                {{formatMoney insights.conversion_revenue}}
+                {{formatMoney funnel.insights.conversion_revenue}}
             </div>
         </li>
         <li class="list-group-item">
@@ -36,7 +36,7 @@
                 ROAS
             </div>
             <div class="sc-list-item-value">
-                {{roas insights.spend insights.conversion_revenue }}
+                {{roas funnel.insights.spend funnel.insights.conversion_revenue }}
             </div>
         </li>
     </ul>
