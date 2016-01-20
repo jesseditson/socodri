@@ -26,9 +26,11 @@ class Funnel(models.Model):
     click_multiplier = models.FloatField(default=1.0)
     action_total_type = models.CharField(max_length=32, default="total_actions")
     revenue_source = models.CharField(max_length=32, default="Facebook")
+    label_fn = models.CharField(max_length=32, null=True)
 
     def __unicode__(self):
         return self.name
+
 
 class Action(models.Model):
     pixel = models.ForeignKey(AdsObject)
@@ -47,3 +49,15 @@ class Stage(models.Model):
 
     def __unicode__(self):
         return self.name
+
+
+class Label(models.Model):
+    funnel = models.ForeignKey(Funnel, related_name='labels')
+    category = models.CharField(max_length=32)
+    text = models.CharField(max_length=255)
+    object_type = models.CharField(max_length=32)
+    object_id = models.CharField(max_length=32)
+    platform = models.CharField(max_length=32)
+
+    def __unicode__(self):
+        return u'%s - %s' % (self.category, self.text)

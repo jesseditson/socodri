@@ -11,8 +11,11 @@ class InsightsMixin(object):
         super(InsightsMixin, self).__init__(*args, **kwargs)
 
         self.http_methods.update({
-            'insights': {
-                'GET': 'insights',
+            'insights_detail': {
+                'GET': 'insights_detail',
+            },
+            'insights_list': {
+                'GET': 'insights_list',
             }
         })
 
@@ -21,15 +24,20 @@ class InsightsMixin(object):
         "Add insights edge"
         urlpatterns = super(InsightsMixin, cls).urls(name_prefix=name_prefix)
         return urlpatterns + patterns('',
-            url(r'^(?P<pk>\d+)/insights/$', cls.as_view('insights'), name=cls.build_url_name('insights', name_prefix)),
-            url(r'^(?P<slug>[\w-]+)/insights/$', cls.as_view('insights'), name=cls.build_url_name('insights', name_prefix))
+            url(r'^(?P<pk>\d+)/insights/$', cls.as_view('insights_detail'), name=cls.build_url_name('insights', name_prefix)),
+            url(r'^(?P<slug>[\w-]+)/insights/$', cls.as_view('insights_detail'), name=cls.build_url_name('insights', name_prefix)),
+            url(r'^insights/$', cls.as_view('insights_list'), name=cls.build_url_name('insights', name_prefix))
         )
 
     @skip_prepare
-    def insights(self, pk=None, slug=None):
+    def insights_detail(self, pk=None, slug=None):
         return {
             'data': {'spend': 0.00, 'conversions': 0, 'conversion_revenue': 0.00}
         }
+
+    @skip_prepare
+    def insights_list(self):
+        return []
 
 
 class GetCurrentUserMixin(object):
@@ -65,7 +73,7 @@ class FunnelResource(GetCurrentUserMixin, AuthorizationMixin, InsightsMixin, dj.
         name_prefix = name_prefix or cls.name_prefix
         urlpatterns = super(FunnelResource, cls).urls(name_prefix=name_prefix)
         return urlpatterns + patterns('',
-            url(r'^(?P<slug>[\w-]+)/$', cls.as_detail(), name=cls.build_url_name('insights', name_prefix)),
+            url(r'^(?P<slug>[\w-]+)/$', cls.as_detail(), name=cls.build_url_name('detail', name_prefix)),
         )
 
     def list(self):
@@ -78,11 +86,10 @@ class FunnelResource(GetCurrentUserMixin, AuthorizationMixin, InsightsMixin, dj.
         return self.get_authorized_queryset().filter(**self._get_lookup_filter(pk, slug)).annotate(stage_count=Count('stage')).first()
 
     @skip_prepare
-    def insights(self, pk=None, slug=None):
+    def insights_detail(self, pk=None, slug=None):
         funnel = models.Funnel.objects.filter(**self._get_lookup_filter(pk, slug)).first()
         daily = self.request.GET.get('daily', False)
-        stages = self.request.GET.get('stages', False)
-        return {'data': insights.get_stage_insights(funnel) if stages else insights.get_funnel_insights(funnel)}
+        return {'data': insights.get_funnel_insights(funnel)}
 
 
 class ActionResource(dj.DjangoResource):
@@ -119,3 +126,62 @@ class StageResource(InsightsMixin, dj.DjangoResource):
 
     def detail(self, pk):
         return models.Stage.objects.get(pk=pk)
+
+    @skip_prepare
+    def insights_list(self):
+        funnel = self.request.GET.get('funnel')
+        return {'data': insights.get_stage_insights(models.Funnel.objects.get(id=funnel))}
+
+class LabelResource(InsightsMixin, dj.DjangoResource):
+    preparer = preparers.LaxFieldsPreparer(fields={
+        'id': 'id',
+        'funnel_id': 'funnel_id',
+        'category': 'category',
+        'text': 'text',
+        'object_type': 'object_type',
+        'object_id': 'object_id',
+        'platform': 'platform'
+    })
+
+    def __init__(self, *args, **kwargs):
+        super(LabelResource, self).__init__(*args, **kwargs)
+
+        self.http_methods.update({
+            'categories': {
+                'GET': 'categories',
+            }
+        })
+
+    @classmethod
+    def urls(cls, name_prefix=None):
+        urlpatterns = super(LabelResource, cls).urls(name_prefix=name_prefix)
+        return urlpatterns + patterns('',
+            url(r'^categories/$', cls.as_view('categories'), name=cls.build_url_name('categories', name_prefix))
+        )
+
+    def list(self):
+        funnel = self.request.GET.get('funnel', 0)
+        return models.Label.objects.all().filter(funnel=funnel)
+
+    def detail(self, pk):
+        return models.Label.objects.get(pk=pk)
+
+    @skip_prepare
+    def categories(self):
+        funnel = self.request.GET.get('funnel', 0)
+        categories = set(models.Label.objects.all().filter(funnel=funnel).values_list('category', flat=True))
+        return {
+            'data': tuple(sorted(categories))
+        }
+
+    @skip_prepare
+    def insights_list(self):
+        funnel = self.request.GET.get('funnel')
+        category = self.request.GET.get('category')
+        data = dict(
+            insights.get_label_catgegory_insights(
+                models.Funnel.objects.get(id=funnel),
+                category
+            )
+        )
+        return {'data': data}

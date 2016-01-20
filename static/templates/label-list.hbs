@@ -1,13 +1,13 @@
-{{#each stages}}
+{{#each labels}}
   <div class="panel sc-panel">
       <div class="sc-card-header">
           <div class="sc-card-details">
               <div class="col-md-12">
-                  <h2 class="card-heading">{{name}}</h2>
+                  <h2 class="card-heading">{{text}}</h2>
               </div>
               <div class="col-md-3">
                   <div class="sc-card-label">
-                      Total {{name}}s
+                      Total Conversions
                   </div>
                   <div class="sc-card-value">
                       {{formatNumber  insights.conversions }} <small>({{percentOf insights.conversions ../funnel.insights.conversions }}%) </small>
@@ -15,10 +15,26 @@
               </div>
               <div class="col-md-3">
                   <div class="sc-card-label">
-                      Cost Per {{name}}
+                      Cost Per Conversion
                   </div>
                   <div class="sc-card-value">
                       {{ costPer insights.conversions insights.spend }}
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="sc-card-label">
+                      Reach
+                  </div>
+                  <div class="sc-card-value">
+                      {{ formatNumber insights.reach }}
+                  </div>
+              </div>
+              <div class="col-md-3">
+                  <div class="sc-card-label">
+                      ROAS
+                  </div>
+                  <div class="sc-card-value">
+                      {{ roas insights.spend insights.conversion_revenue }}
                   </div>
               </div>
               <div class="clearfix"></div>

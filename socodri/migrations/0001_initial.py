@@ -38,8 +38,21 @@ class Migration(migrations.Migration):
                 ('click_multiplier', models.FloatField(default=1.0)),
                 ('action_total_type', models.CharField(default=b'total_actions', max_length=32)),
                 ('revenue_source', models.CharField(default=b'Facebook', max_length=32)),
+                ('label_fn', models.CharField(max_length=32, null=True)),
                 ('adaccount', models.ForeignKey(related_name='funnel', to='socodri.AdsObject')),
                 ('campaigns', models.ManyToManyField(related_name='funnels', to='socodri.AdsObject')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Label',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('category', models.CharField(max_length=32)),
+                ('text', models.CharField(max_length=255)),
+                ('object_type', models.CharField(max_length=32)),
+                ('object_id', models.CharField(max_length=32)),
+                ('platform', models.CharField(max_length=32)),
+                ('funnel', models.ForeignKey(to='socodri.Funnel')),
             ],
         ),
         migrations.CreateModel(
