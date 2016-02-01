@@ -27,3 +27,5 @@ RUN npm run bundle
 
 # run our migrations
 RUN python manage.py migrate
+
+CMD npm run serve
